@@ -1,0 +1,14 @@
+{
+  "name": "handy-server",
+  "version": "1.0.0",
+  "description": "API Server for handy",
+  "main": "app.js",
+  "repository": "https://github.com/aleangel1212/handy-server.git",
+  "author": "Alessandro Vecchi <aleangel1212@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "nodemon": "^1.12.1"
+  }
+}
