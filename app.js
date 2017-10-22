@@ -63,6 +63,10 @@ app.post('/arrived', (req, res)=>{
 });
 
 app.post('/finished', (req, res)=>{
+	const findAverage = (oldAverage, newAverage, numAverages) => {
+		return ((oldAverage*numAverages) + newAverage) / (numAverages + 1);
+	}
+
 	const update = _.pick(req.body, [
 	    'customer',
 	    'handyperson',
@@ -76,8 +80,7 @@ app.post('/finished', (req, res)=>{
 	    {
 	      $set: {
 	      	'endTime': update.endTime,
-	      	'handyperson.rating': update.handyperson.rating,
-	      	'customer.rating': Math.floor(Math.random() * 5)
+	      	'handyperson.rating': update.handyperson.rating
 	      }
 	    },
 	    {
@@ -85,17 +88,49 @@ app.post('/finished', (req, res)=>{
 	    }
 	)
 	.then((doc)=>{
-		const entry = _.pick(doc, ["status", "customer", "handyperson", "startTime", "endTime"]);
+		const interaction = _.pick(doc, ["status", "customer", "handyperson", "startTime", "endTime"]);
 
-		blockchain.createEntry(entry).then((hash)=>{
-			blockchain.retrieveEntry(hash).then((entry)=>{
-				console.log(entry);
-			})
-		});
+		LastHash.findOne({username: interaction.handyperson.username}).then((doc)=>{
+			if(doc){
+				blockchain.retrieveEntry(doc.lastHash).then((entry)=>{
+					const newInteraction = {
+						...interaction,
+						handyperson: {
+							username: interaction.handyperson.username,
+							rating: findAverage(entry.handyperson.rating, interaction.handyperson.rating, entry.handyperson.numRatings),
+							numRatings: entry.handyperson.numRatings+1
+						}
+					}
 
-		Interaction.findOneAndRemove({_id: doc._id}, (err, doc)=>{
-			res.send(doc);
-		});
+					blockchain.createEntry(newInteraction).then((hash)=>{
+						
+						LastHash.findOneAndUpdate(
+							{'username': newInteraction.handyperson.username},
+							{ $set: {
+									lastHash: hash
+								}
+							},
+							{new: true}
+						).then((doc)=>{
+							Interaction.findOneAndRemove({'customer.username': newInteraction.customer.username}).then(()=>{
+								res.send(newInteraction);
+							});
+						})
+					})
+				})
+			}
+
+			else {
+				interaction.handyperson.numRatings = 1;
+				blockchain.createEntry(interaction).then((hash)=>{
+					const lastHash = new LastHash({username: interaction.handyperson.username, lastHash: hash});
+					lastHash.save();
+					Interaction.findOneAndRemove({'customer.username': interaction.customer.username}).then(()=>{
+						res.send(interaction);
+					});
+				})
+			}
+		})
 	})
 	.catch((err)=>{
 		res.send(err);

@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const _ = require('lodash');
 
 const InteractionSchema = new mongoose.Schema({
   customer: {
@@ -18,6 +17,9 @@ const InteractionSchema = new mongoose.Schema({
       unique: true
     },
     rating: {
+      type: Number
+    },
+    rate: {
       type: Number
     }
   },
