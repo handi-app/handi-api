@@ -1,18 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
+const Blockchain = require('./blockchain');
+
+const config = require('./config');
+
 const DEFAULT_PORT = 3000;
 
-const app = express();
+const blockchain = new Blockchain('message.proto','TM12','Gig', config);
 
-app.set('port', process.env.PORT || DEFAULT_PORT);
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-
-app.get('/me', (req, res) => {
-  res.send({msg: 'ok'});
-});
-
-app.listen(app.get('port'), () => {
-  console.log(`Listening on port: ${app.get('port')}`);
-});
+blockchain.retrieveEntry("5f147a38f83f9dc276980011e46b076a9a2c8f5e27c53ec2d7078847c69a5d36");

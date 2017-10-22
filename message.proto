@@ -1,0 +1,14 @@
+syntax = "proto3";
+package TM12;
+
+option java_package = "com.mastercard.blockchain";
+option java_outer_classname = "BarebonesProtocolBuffer";
+
+message Gig {
+	int32 id = 1;
+	int32 startTime = 2;
+	int32 endTime = 3;
+	int32 status = 4;
+	string handypersonKey = 5;
+	string customerKey = 6;
+}
