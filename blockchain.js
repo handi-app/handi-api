@@ -48,6 +48,8 @@ class Blockchain {
 
 	retrieveEntry(hash){
 		return new Promise((resolve, reject)=>{
+			if(!hash)
+				reject({error: "No hash to retrieve"});
 
 			protobuf.load(this.protoPath).then((root)=>{
 				const messageDef = root.lookupType(`${this.appId}.${this.messageName}`);
@@ -71,6 +73,47 @@ class Blockchain {
 				reject(error);
 			});
 
+		})
+	}
+
+	getEntries(fromSlot, toSlot){
+		return new Promise((resolve, reject)=>{
+			blockchain.Block.list({from: fromSlot, to: toSlot}, (error, data)=>{
+				if(error)
+					reject(error);
+
+				let entries = [];
+
+				data.forEach((block)=>{
+					if(block.partitions.length > 0){
+						entries = [...entries, ...block.partitions[0].entries];
+					}
+				});
+
+				resolve(entries);
+			});
+		});
+	}
+
+	getCurrentBlock(){
+		return new Promise((resolve, reject)=>{
+			blockchain.Status.query({}, (error, data)=>{
+				if(error)
+					reject(error);
+
+				resolve(data.current);		
+			})
+		})
+	}
+
+	readBlock(slot){
+		return new Promise((resolve, reject)=>{
+			blockchain.Block.read(slot, {}, (error, data)=>{
+				if(error)
+					reject(error);
+
+				resolve(data);
+			});
 		})
 	}
 
