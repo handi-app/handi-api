@@ -120,6 +120,9 @@ app.post('/finished', (req, res)=>{
 						).then((doc)=>{
 							Interaction.findOneAndRemove({'customer.username': newInteraction.customer.username}).then(()=>{
 								res.send(newInteraction);
+								blockchain.retrieveEntry(doc.lastHash).then((result)=>{
+									console.log(result);
+								});
 							});
 						})
 					})
@@ -133,6 +136,9 @@ app.post('/finished', (req, res)=>{
 					lastHash.save();
 					Interaction.findOneAndRemove({'customer.username': interaction.customer.username}).then(()=>{
 						res.send(interaction);
+					});
+					blockchain.retrieveEntry(hash).then((result)=>{
+						console.log(result);
 					});
 				})
 			}
