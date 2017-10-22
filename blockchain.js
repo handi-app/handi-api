@@ -21,28 +21,57 @@ class Blockchain {
 	}
 
 	createEntry(payload){
-		protobuf.load(this.protoPath).then((root)=>{
-			const messageDef = root.lookupType(`${this.appId}.${this.messageName}`);
+		return new Promise((resolve, reject)=>{
+			protobuf.load(this.protoPath).then((root)=>{
+				const messageDef = root.lookupType(`${this.appId}.${this.messageName}`);
 
-			const req = {
-	            "app": this.appId,
-	            "encoding": 'base64',
-	            "value": messageDef.encode(payload).finish().toString('base64')
-	        };
+				const req = {
+		            "app": this.appId,
+		            "encoding": 'base64',
+		            "value": messageDef.encode(payload).finish().toString('base64')
+		        };
 
-			this.blockchain.TransactionEntry.create(req, (err, data)=>{});
+				this.blockchain.TransactionEntry.create(req, (error, data)=>{
+					if(error)
+						reject(error);
+
+					resolve(data.hash);
+				});
 
 
-		})
-		.catch((err)=>{
-			console.log(err);
+			})
+			.catch((error)=>{
+				reject(error);
+			});
 		});
 	}
 
 	retrieveEntry(hash){
-		const req = { "hash": hash };
+		return new Promise((resolve, reject)=>{
 
-		this.blockchain.TransactionEntry.read("",req, ()=>{});
+			protobuf.load(this.protoPath).then((root)=>{
+				const messageDef = root.lookupType(`${this.appId}.${this.messageName}`);
+
+				const req = { "hash": hash };
+				this.blockchain.TransactionEntry.read("",req, (error, data)=>{
+					if(error)
+						reject(error);
+
+					var message = messageDef.decode(new Buffer(data.value, 'hex'));
+		            var object = messageDef.toObject(message, {
+		                longs: String,
+		                enums: String,
+		                bytes: String
+		            });
+
+		            resolve(object);
+				});
+			})
+			.catch((error)=>{
+				reject(error);
+			});
+
+		})
 	}
 
 }
