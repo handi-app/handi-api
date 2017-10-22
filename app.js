@@ -26,6 +26,8 @@ app.post('/interactions', (req, res) => {
     'handyperson'
   ]);
 
+  console.log("POST /interactions", body);
+
   const interaction = new Interaction(body);
   interaction.status = 0;
 
@@ -42,6 +44,8 @@ app.post('/arrived', (req, res)=>{
 	    'customer',
 		'startTime'
 	]);
+
+	console.log("POST /arrived", update);
 
 	Interaction.findOneAndUpdate(
 		{
@@ -72,6 +76,8 @@ app.post('/finished', (req, res)=>{
 	    'handyperson',
 		'endTime'
 	]);
+
+	console.log("POST /finished")
 
 	Interaction.findOneAndUpdate(
 		{

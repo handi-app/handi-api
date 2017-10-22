@@ -5,18 +5,18 @@ const blockchain = new Blockchain('message.proto','TM12','Gig', config);
 // const entry = {
 // 	status: 0,
 // 	customer: {
-// 		username: 'janesmith',
-// 		rating: 3
+// 		username: 'janesmith'
 // 	},
 // 	handyperson: {
 // 		username: 'maxmclau',
+// 		rate: 40,
 // 		rating: 2.5
 // 	},
 // 	startTime: 23522352,
 // 	endTime: 23562574
 // }
 
-blockchain.retrieveEntry('6648aed67abf82f981ee024c14aa6b2fa238e33b96a7027d687119cab9e181fc').then((entry)=>{
+blockchain.retrieveEntry('a447aff4eca4a2240c12fefb06ff6183d105e7fa5ab428823ff96a9ac6422154').then((entry)=>{
 	console.log(entry);
 })
 
